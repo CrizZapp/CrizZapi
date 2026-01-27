@@ -24,3 +24,6 @@ app.post('/mensaje', (req, res) => {
     res.status(400).send('No recibí ningún texto');
   }
 })
+app.listen(port, () => {
+  console.log(`Servidor corriendo en puerto ${port}`);
+});
