@@ -20,14 +20,14 @@ app.get('/jugadores', (req, res) => {
 });
 
 // Endpoint /waifu que llama a otra API
-app.get('/waifu', async (req, res) => {
+app.get('/hentai', async (req, res) => {
   try {
-    const response = await fetch('https://api.waifu.pics/sfw/waifu');
+    const response = await fetch('https://nekobot.xyz/api/image?type=hentai');
     const data = await response.json(); // normalmente { url: "https://..." }
 
     // Devolver la URL al cliente o directamente un objeto JSON
     res.json({
-      mensaje: "Aquí tienes tu waifu 😏",
+      mensaje: "Aquí tienes tu hentai de la API CrizZapp",
       url: data.url
     });
   } catch (error) {
