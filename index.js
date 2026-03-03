@@ -1,5 +1,4 @@
 const express = require('express');
-const fetch = require('node-fetch'); // si usás Node < 18
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -29,9 +28,7 @@ body {
   padding: 40px;
   border-radius: 12px;
 }
-h1 {
-  color: #38bdf8;
-}
+h1 { color: #38bdf8; }
 code {
   background: #020617;
   color: #22c55e;
@@ -45,13 +42,12 @@ footer {
 }
 </style>
 </head>
-
 <body>
 <div class="container">
   <h1>🚀 CrizZapi</h1>
   <p>API activa y funcionando correctamente.</p>
 
-  <h3>📌 Endpoints</h3>
+  <h3>Endpoints</h3>
   <ul>
     <li><code>GET /jugadores</code></li>
     <li><code>GET /hentai</code></li>
@@ -59,9 +55,7 @@ footer {
     <li><code>POST /mensaje</code></li>
   </ul>
 
-  <footer>
-    © 2026 CrizZapi — by CrizZ
-  </footer>
+  <footer>© 2026 CrizZapi</footer>
 </div>
 </body>
 </html>
@@ -86,16 +80,12 @@ app.get('/hentai', async (req, res) => {
     const r = await fetch('https://nekobot.xyz/api/image?type=hentai');
     const j = await r.json();
 
-    if (!j.success) {
-      return res.status(500).json({ error: "No se pudo obtener imagen" });
-    }
-
     res.json({
       autor: "CrizZapi",
       url: j.message
     });
-  } catch (e) {
-    res.status(500).json({ error: "Error al conectar con la API externa" });
+  } catch {
+    res.status(500).json({ error: "Error al obtener imagen" });
   }
 });
 
@@ -111,31 +101,23 @@ app.get('/nekos', async (req, res) => {
       autor: "CrizZapi",
       url: j.url
     });
-  } catch (e) {
+  } catch {
     res.status(500).json({ error: "Error al obtener neko" });
   }
 });
 
 /* =========================
-   /mensaje (POST)
+   /mensaje
 ========================= */
 app.post('/mensaje', (req, res) => {
   const { texto } = req.body;
-
   if (!texto) {
-    return res.status(400).json({
-      error: 'Falta el campo "texto"'
-    });
+    return res.status(400).json({ error: 'Falta "texto"' });
   }
 
-  res.json({
-    respuesta: `Recibí tu mensaje: ${texto}`
-  });
+  res.json({ respuesta: `Recibí tu mensaje: ${texto}` });
 });
 
-/* =========================
-   SERVIDOR
-========================= */
 app.listen(port, () => {
   console.log(`🚀 CrizZapi corriendo en puerto ${port}`);
 });
