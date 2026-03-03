@@ -6,26 +6,10 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 
 /* =========================
-   RUTA PRINCIPAL (BONITA)
+   RUTA PRINCIPAL (HTML)
 ========================= */
 app.get('/', (req, res) => {
-
-  const data = {
-    nombre: "CrizZapi",
-    estado: "Activa y funcional",
-    version: "1.0.0",
-    endpoints: {
-      jugadores: "/jugadores",
-      hentai: "/hentai",
-      nekos: "/nekos",
-      mensaje: "/mensaje (POST)"
-    },
-    autor: "CrizZ"
-  };
-
-  res.format({
-    'text/html': () => {
-      res.send(`
+  res.send(`
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -33,27 +17,29 @@ app.get('/', (req, res) => {
 <title>CrizZapi</title>
 <style>
 body {
+  margin: 0;
   font-family: Arial, sans-serif;
   background: #0f172a;
   color: #e5e7eb;
-  padding: 40px;
 }
-.box {
-  max-width: 700px;
-  margin: auto;
+.container {
+  max-width: 800px;
+  margin: 60px auto;
   background: #020617;
-  padding: 30px;
+  padding: 40px;
   border-radius: 12px;
 }
-h1 { color: #38bdf8; }
+h1 {
+  color: #38bdf8;
+}
 code {
   background: #020617;
-  padding: 5px 10px;
-  border-radius: 6px;
   color: #22c55e;
+  padding: 6px 10px;
+  border-radius: 6px;
 }
 footer {
-  margin-top: 30px;
+  margin-top: 40px;
   font-size: 12px;
   opacity: .6;
 }
@@ -61,11 +47,11 @@ footer {
 </head>
 
 <body>
-<div class="box">
+<div class="container">
   <h1>🚀 CrizZapi</h1>
   <p>API activa y funcionando correctamente.</p>
 
-  <h3>📌 Endpoints disponibles</h3>
+  <h3>📌 Endpoints</h3>
   <ul>
     <li><code>GET /jugadores</code></li>
     <li><code>GET /hentai</code></li>
@@ -79,28 +65,17 @@ footer {
 </div>
 </body>
 </html>
-      `);
-    },
-
-    'application/json': () => {
-      res.json(data);
-    },
-
-    default: () => {
-      res.json(data);
-    }
-  });
+  `);
 });
 
 /* =========================
    /jugadores
 ========================= */
 app.get('/jugadores', (req, res) => {
-  const jugadores = [
+  res.json([
     { nombre: "Cris", nivel: 10 },
     { nombre: "Camila", nivel: 12 }
-  ];
-  res.json(jugadores);
+  ]);
 });
 
 /* =========================
@@ -108,18 +83,18 @@ app.get('/jugadores', (req, res) => {
 ========================= */
 app.get('/hentai', async (req, res) => {
   try {
-    const response = await fetch('https://nekobot.xyz/api/image?type=hentai');
-    const data = await response.json();
+    const r = await fetch('https://nekobot.xyz/api/image?type=hentai');
+    const j = await r.json();
 
-    if (data.success) {
-      res.json({
-        autor: "CrizZapi",
-        resultado: data.message
-      });
-    } else {
-      res.status(500).json({ error: "No se pudo obtener la imagen" });
+    if (!j.success) {
+      return res.status(500).json({ error: "No se pudo obtener imagen" });
     }
-  } catch (err) {
+
+    res.json({
+      autor: "CrizZapi",
+      url: j.message
+    });
+  } catch (e) {
     res.status(500).json({ error: "Error al conectar con la API externa" });
   }
 });
@@ -129,14 +104,14 @@ app.get('/hentai', async (req, res) => {
 ========================= */
 app.get('/nekos', async (req, res) => {
   try {
-    const response = await fetch('https://api.waifu.pics/sfw/neko');
-    const data = await response.json();
+    const r = await fetch('https://api.waifu.pics/sfw/neko');
+    const j = await r.json();
 
     res.json({
       autor: "CrizZapi",
-      url: data.url
+      url: j.url
     });
-  } catch (err) {
+  } catch (e) {
     res.status(500).json({ error: "Error al obtener neko" });
   }
 });
