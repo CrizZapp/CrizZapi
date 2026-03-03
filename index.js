@@ -1,16 +1,18 @@
 const express = require('express');
-const fetch = require('node-fetch'); // npm install node-fetch si tu versión de Node no tiene fetch
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
-// Endpoint principal
+// 1. Endpoint de Bienvenida
 app.get('/', (req, res) => {
-  res.send('¡Mi API funciona!');
+  res.json({
+    mensaje: "¡CrizZapi está activa!",
+    endpoints: ["/jugadores", "/hentai", "/nekos", "/mensaje"]
+  });
 });
 
-// Endpoint /jugadores
+// 2. Endpoint /jugadores (Estático)
 app.get('/jugadores', (req, res) => {
   const jugadores = [
     {"nombre": "Cris", "nivel": 10},
@@ -19,34 +21,51 @@ app.get('/jugadores', (req, res) => {
   res.json(jugadores);
 });
 
-// Endpoint /waifu que llama a otra API
+// 3. Endpoint /hentai (Corregido)
 app.get('/hentai', async (req, res) => {
   try {
     const response = await fetch('https://nekobot.xyz/api/image?type=hentai');
-    const data = await response.json(); // normalmente { url: "https://..." }
+    const data = await response.json();
 
-    // Devolver la URL al cliente o directamente un objeto JSON
+    if (data.success) {
+      res.json({
+        autor: "CrizZapi",
+        resultado: data.message // Nekobot devuelve la URL en 'message'
+      });
+    } else {
+      res.status(500).json({ error: "No se pudo obtener la imagen" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Error en la conexión con el servidor de imágenes" });
+  }
+});
+
+// 4. Endpoint /nekos (NUEVO)
+app.get('/nekos', async (req, res) => {
+  try {
+    // Usamos waifu.pics que es muy rápida y estable
+    const response = await fetch('https://api.waifu.pics/sfw/neko');
+    const data = await response.json();
+
     res.json({
-      mensaje: "Aquí tienes tu hentai de la API CrizZapp",
+      mensaje: "Aquí tienes tu Neko",
       url: data.url
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "❌ Error al llamar a la API de waifus" });
+    res.status(500).json({ error: "Error al buscar nekos" });
   }
 });
 
-// Endpoint /mensaje
+// 5. Endpoint /mensaje (POST)
 app.post('/mensaje', (req, res) => {
   const { texto } = req.body;
   if (texto) {
-    res.send(`Recibí tu mensaje: ${texto}`);
+    res.json({ respuesta: `Recibí tu mensaje: ${texto}` });
   } else {
-    res.status(400).send('No recibí ningún texto');
+    res.status(400).json({ error: 'Falta el campo "texto" en el cuerpo' });
   }
 });
 
-// Iniciar servidor
 app.listen(port, () => {
   console.log(`Servidor corriendo en puerto ${port}`);
 });
