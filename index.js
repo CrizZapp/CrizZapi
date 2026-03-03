@@ -1,154 +1,138 @@
-const express = require('express');
+const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
-/* =========================
-   HOME — LANDING DE API
-========================= */
-app.get('/', (req, res) => {
+// =========================
+// PORTADA (NO JSON HORRIBLE)
+// =========================
+app.get("/", (req, res) => {
   res.send(`
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CrizZapi</title>
-
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: Arial, sans-serif;
-  background: radial-gradient(circle at top, #050505, #000);
-  color: #fff;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* CONTENEDOR */
-.api-box {
-  width: 95%;
-  max-width: 500px;
-  background: rgba(0,0,0,0.85);
-  padding: 28px;
-  border-radius: 16px;
-  box-shadow:
-    0 0 15px #ff66cc,
-    0 0 30px rgba(255,102,204,0.4);
-  text-align: center;
-}
-
-/* TITULO */
-.api-box h1 {
-  font-size: 2.4em;
-  color: #ff66cc;
-  margin-bottom: 10px;
-  text-shadow:
-    0 0 10px #ff66cc,
-    0 0 25px #ff66cc;
-}
-
-/* TEXTO */
-.api-box p {
-  margin-bottom: 22px;
-  opacity: 0.9;
-}
-
-/* ENDPOINTS */
-.endpoint {
-  margin: 12px 0;
-  padding: 14px;
-  border-radius: 10px;
-  background: #0b0b0b;
-  color: #00ffcc;
-  font-weight: bold;
-  box-shadow:
-    0 0 10px rgba(0,255,204,0.6);
-  text-shadow: 0 0 8px #00ffcc;
-}
-
-/* FOOTER */
-footer {
-  margin-top: 22px;
-  font-size: 12px;
-  opacity: 0.6;
-}
+  body {
+    margin: 0;
+    background: #0f0f0f;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  .box {
+    background: #161616;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,.6);
+    width: 90%;
+    max-width: 420px;
+  }
+  h1 {
+    margin-top: 0;
+    color: #00ffcc;
+  }
+  ul {
+    padding-left: 18px;
+  }
+  li {
+    margin: 6px 0;
+  }
+  .footer {
+    margin-top: 20px;
+    font-size: 12px;
+    opacity: .6;
+  }
 </style>
 </head>
-
 <body>
-
-<div class="api-box">
-  <h1>🚀 CrizZapi</h1>
-  <p>API activa y funcionando correctamente</p>
-
-  <div class="endpoint">GET /jugadores</div>
-  <div class="endpoint">GET /hentai</div>
-  <div class="endpoint">GET /nekos</div>
-  <div class="endpoint">POST /mensaje</div>
-
-  <footer>© 2026 CrizZapi</footer>
-</div>
-
+  <div class="box">
+    <h1>🚀 CrizZapi activa</h1>
+    <p>Endpoints disponibles:</p>
+    <ul>
+      <li>/jugadores</li>
+      <li>/hentai</li>
+      <li>/nekos</li>
+      <li>/mensaje (POST)</li>
+    </ul>
+    <div class="footer">© CrizZapi</div>
+  </div>
 </body>
 </html>
-  `);
+`);
 });
 
-/* =========================
-   /jugadores
-========================= */
-app.get('/jugadores', (req, res) => {
+// =========================
+// /jugadores (relleno)
+// =========================
+app.get("/jugadores", (req, res) => {
   res.json([
     { nombre: "Cris", nivel: 10 },
     { nombre: "Camila", nivel: 12 }
   ]);
 });
 
-/* =========================
-   /hentai
-========================= */
-app.get('/hentai', async (req, res) => {
+// =========================
+// /hentai
+// =========================
+app.get("/hentai", async (req, res) => {
   try {
-    const r = await fetch('https://nekobot.xyz/api/image?type=hentai');
-    const j = await r.json();
-    res.json({ autor: "CrizZapi", url: j.message });
-  } catch {
-    res.status(500).json({ error: "Error al obtener imagen" });
+    const r = await fetch("https://nekobot.xyz/api/image?type=hentai");
+    const d = await r.json();
+
+    if (!d.success) {
+      return res.status(500).json({ error: "No se pudo obtener imagen" });
+    }
+
+    res.json({
+      autor: "CrizZapi",
+      resultado: d.message
+    });
+  } catch (e) {
+    res.status(500).json({ error: "Error al conectar con la API" });
   }
 });
 
-/* =========================
-   /nekos
-========================= */
-app.get('/nekos', async (req, res) => {
+// =========================
+// /nekos
+// =========================
+app.get("/nekos", async (req, res) => {
   try {
-    const r = await fetch('https://api.waifu.pics/sfw/neko');
-    const j = await r.json();
-    res.json({ autor: "CrizZapi", url: j.url });
-  } catch {
+    const r = await fetch("https://api.waifu.pics/sfw/neko");
+    const d = await r.json();
+
+    res.json({
+      mensaje: "Aquí tienes tu neko",
+      url: d.url
+    });
+  } catch (e) {
     res.status(500).json({ error: "Error al obtener neko" });
   }
 });
 
-/* =========================
-   /mensaje
-========================= */
-app.post('/mensaje', (req, res) => {
-  const { texto } = req.body;
+// =========================
+// /mensaje (POST)
+// =========================
+app.post("/mensaje", (req, res) => {
+  const texto = req.body.texto;
+
   if (!texto) {
-    return res.status(400).json({ error: 'Falta "texto"' });
+    return res.status(400).json({ error: 'Falta el campo "texto"' });
   }
-  res.json({ respuesta: \`Recibí tu mensaje: \${texto}\` });
+
+  res.json({
+    respuesta: "Recibí tu mensaje: " + texto
+  });
 });
 
-/* =========================
-   SERVER
-========================= */
+// =========================
+// START
+// =========================
 app.listen(port, () => {
-  console.log(\`🚀 CrizZapi corriendo en puerto \${port}\`);
+  console.log("CrizZapi corriendo en puerto " + port);
 });
